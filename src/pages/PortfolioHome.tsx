@@ -271,15 +271,12 @@ export default function PortfolioHome() {
                   src={safeProfile.avatarUrl}
                   alt={safeProfile.name}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  className="w-full h-full object-cover transition-all duration-700"
                   onError={(e) => {
                     // Fallback to postimg fallback
                     e.currentTarget.src = "https://i.postimg.cc/Y0yKdbbg/IMG-20260517-213404-358.jpg";
                   }}
                 />
-                
-                {/* Hologram lines mask */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 pointer-events-none" />
               </div>
 
               {/* Floating tech nodes */}
