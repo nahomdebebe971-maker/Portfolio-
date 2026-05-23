@@ -72,17 +72,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isFirebaseActive, setIsFirebaseActive] = useState<boolean>(false);
   const [visitorCount, setVisitorCount] = useState<number>(0);
 
-  // Load visitor counts from local storage as a dynamic metric helper
+  // Load visitor counts dynamically from Firestore on startup
   useEffect(() => {
-    const current = parseInt(localStorage.getItem('nahom_portfolio_visitors') || '0', 10);
-    setVisitorCount(current);
+    const sessionActive = sessionStorage.getItem('nahom_portfolio_session_active');
+    if (!sessionActive) {
+      dbService.incrementVisitorCount().then(count => {
+        setVisitorCount(count);
+        sessionStorage.setItem('nahom_portfolio_session_active', 'true');
+      }).catch(err => {
+        console.warn("Could not increment visitor count:", err);
+      });
+    } else {
+      dbService.getVisitorCount().then(count => {
+        setVisitorCount(count);
+      }).catch(err => {
+        console.warn("Could not load visitor count:", err);
+      });
+    }
   }, []);
 
-  const incrementVisitorCount = () => {
-    const current = parseInt(localStorage.getItem('nahom_portfolio_visitors') || '0', 10);
-    const updated = current + 1;
-    localStorage.setItem('nahom_portfolio_visitors', updated.toString());
-    setVisitorCount(updated);
+  const incrementVisitorCount = async () => {
+    try {
+      const updated = await dbService.incrementVisitorCount();
+      setVisitorCount(updated);
+    } catch (err) {
+      console.warn("Could not increment visitor count dynamically:", err);
+    }
   };
 
   // Toast controls
@@ -121,14 +136,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const refreshAll = async () => {
     setLoading(true);
     try {
-      const [p, s, ac, aw, pr, sc, ct] = await Promise.all([
+      const [p, s, ac, aw, pr, sc, ct, vc] = await Promise.all([
         dbService.getProfile(),
         dbService.getSkills(),
         dbService.getAchievements(),
         dbService.getAwards(),
         dbService.getProjects(),
         dbService.getSocials(),
-        dbService.getContacts()
+        dbService.getContacts(),
+        dbService.getVisitorCount()
       ]);
 
       setProfile(p);
@@ -138,6 +154,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setProjects(pr);
       setSocials(sc);
       setContacts(ct);
+      setVisitorCount(vc);
       
       const { isRealFirebase } = await import('../firebase/config');
       setIsFirebaseActive(isRealFirebase);

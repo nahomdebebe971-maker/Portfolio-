@@ -8,9 +8,10 @@ import {
   updateDoc, 
   deleteDoc, 
   query, 
-  orderBy 
+  orderBy,
+  increment
 } from 'firebase/firestore';
-import { db, isRealFirebase } from './config';
+import { db } from './config';
 import { Profile, Skill, Achievement, Award, Project, Socials, ContactMessage } from '../types';
 
 enum OperationType {
@@ -120,26 +121,9 @@ const INITIAL_SOCIALS: Socials = {
   email: 'nahomdebebe971@gmail.com'
 };
 
-// Help helper to read from local storage with initial backups
-const getLocal = <T>(key: string, initial: T): T => {
-  const data = localStorage.getItem(`nahom_portfolio_${key}`);
-  if (!data) {
-    localStorage.setItem(`nahom_portfolio_${key}`, JSON.stringify(initial));
-    return initial;
-  }
-  return JSON.parse(data);
-};
-
-const setLocal = <T>(key: string, data: T): void => {
-  localStorage.setItem(`nahom_portfolio_${key}`, JSON.stringify(data));
-};
-
 export const dbService = {
   // PROFILE
   async getProfile(): Promise<Profile> {
-    if (!isRealFirebase) {
-      return getLocal<Profile>('profile', INITIAL_PROFILE);
-    }
     const path = 'profile';
     try {
       const docRef = doc(db, path, 'default');
@@ -147,19 +131,16 @@ export const dbService = {
       if (docSnap.exists()) {
         return { id: docSnap.id, ...docSnap.data() } as Profile;
       } else {
-        // If config is live but empty, create and populate with initial
         await setDoc(docRef, INITIAL_PROFILE);
         return INITIAL_PROFILE;
       }
     } catch (e) {
-      console.warn("Firestore error, load local cached Profile alternative:", e);
-      return getLocal<Profile>('profile', INITIAL_PROFILE);
+      handleFirestoreError(e, OperationType.GET, `${path}/default`);
+      return INITIAL_PROFILE;
     }
   },
 
   async saveProfile(profile: Profile): Promise<void> {
-    setLocal('profile', profile);
-    if (!isRealFirebase) return;
     const path = 'profile';
     try {
       await setDoc(doc(db, path, 'default'), {
@@ -176,36 +157,22 @@ export const dbService = {
 
   // SKILLS
   async getSkills(): Promise<Skill[]> {
-    if (!isRealFirebase) {
-      return getLocal<Skill[]>('skills', INITIAL_SKILLS);
-    }
     const path = 'skills';
     try {
       const snap = await getDocs(collection(db, path));
       if (snap.empty) {
-        // Hydrate Firestore if empty
         const promises = INITIAL_SKILLS.map(sk => setDoc(doc(db, path, sk.id), sk));
         await Promise.all(promises);
         return INITIAL_SKILLS;
       }
       return snap.docs.map(d => ({ id: d.id, ...d.data() } as Skill));
     } catch (e) {
-      console.warn("Firestore error, load local cached Skills alternative:", e);
-      return getLocal<Skill[]>('skills', INITIAL_SKILLS);
+      handleFirestoreError(e, OperationType.LIST, path);
+      return [];
     }
   },
 
   async saveSkill(skill: Skill): Promise<void> {
-    const list = getLocal<Skill[]>('skills', INITIAL_SKILLS);
-    const index = list.findIndex(s => s.id === skill.id);
-    if (index >= 0) {
-      list[index] = skill;
-    } else {
-      list.push(skill);
-    }
-    setLocal('skills', list);
-
-    if (!isRealFirebase) return;
     const path = 'skills';
     try {
       await setDoc(doc(db, path, skill.id), {
@@ -219,10 +186,6 @@ export const dbService = {
   },
 
   async deleteSkill(id: string): Promise<void> {
-    const list = getLocal<Skill[]>('skills', INITIAL_SKILLS).filter(s => s.id !== id);
-    setLocal('skills', list);
-
-    if (!isRealFirebase) return;
     const path = 'skills';
     try {
       await deleteDoc(doc(db, path, id));
@@ -233,9 +196,6 @@ export const dbService = {
 
   // ACHIEVEMENTS
   async getAchievements(): Promise<Achievement[]> {
-    if (!isRealFirebase) {
-      return getLocal<Achievement[]>('achievements', INITIAL_ACHIEVEMENTS);
-    }
     const path = 'achievements';
     try {
       const snap = await getDocs(collection(db, path));
@@ -246,22 +206,12 @@ export const dbService = {
       }
       return snap.docs.map(d => ({ id: d.id, ...d.data() } as Achievement));
     } catch (e) {
-      console.warn("Firestore error, load local achievements:", e);
-      return getLocal<Achievement[]>('achievements', INITIAL_ACHIEVEMENTS);
+      handleFirestoreError(e, OperationType.LIST, path);
+      return [];
     }
   },
 
   async saveAchievement(achievement: Achievement): Promise<void> {
-    const list = getLocal<Achievement[]>('achievements', INITIAL_ACHIEVEMENTS);
-    const index = list.findIndex(a => a.id === achievement.id);
-    if (index >= 0) {
-      list[index] = achievement;
-    } else {
-      list.push(achievement);
-    }
-    setLocal('achievements', list);
-
-    if (!isRealFirebase) return;
     const path = 'achievements';
     try {
       await setDoc(doc(db, path, achievement.id), {
@@ -276,10 +226,6 @@ export const dbService = {
   },
 
   async deleteAchievement(id: string): Promise<void> {
-    const list = getLocal<Achievement[]>('achievements', INITIAL_ACHIEVEMENTS).filter(a => a.id !== id);
-    setLocal('achievements', list);
-
-    if (!isRealFirebase) return;
     const path = 'achievements';
     try {
       await deleteDoc(doc(db, path, id));
@@ -290,9 +236,6 @@ export const dbService = {
 
   // AWARDS
   async getAwards(): Promise<Award[]> {
-    if (!isRealFirebase) {
-      return getLocal<Award[]>('awards', INITIAL_AWARDS);
-    }
     const path = 'awards';
     try {
       const snap = await getDocs(collection(db, path));
@@ -303,22 +246,12 @@ export const dbService = {
       }
       return snap.docs.map(d => ({ id: d.id, ...d.data() } as Award));
     } catch (e) {
-      console.warn("Firestore error, load local awards:", e);
-      return getLocal<Award[]>('awards', INITIAL_AWARDS);
+      handleFirestoreError(e, OperationType.LIST, path);
+      return [];
     }
   },
 
   async saveAward(award: Award): Promise<void> {
-    const list = getLocal<Award[]>('awards', INITIAL_AWARDS);
-    const index = list.findIndex(a => a.id === award.id);
-    if (index >= 0) {
-      list[index] = award;
-    } else {
-      list.push(award);
-    }
-    setLocal('awards', list);
-
-    if (!isRealFirebase) return;
     const path = 'awards';
     try {
       await setDoc(doc(db, path, award.id), {
@@ -334,10 +267,6 @@ export const dbService = {
   },
 
   async deleteAward(id: string): Promise<void> {
-    const list = getLocal<Award[]>('awards', INITIAL_AWARDS).filter(a => a.id !== id);
-    setLocal('awards', list);
-
-    if (!isRealFirebase) return;
     const path = 'awards';
     try {
       await deleteDoc(doc(db, path, id));
@@ -348,9 +277,6 @@ export const dbService = {
 
   // PROJECTS
   async getProjects(): Promise<Project[]> {
-    if (!isRealFirebase) {
-      return getLocal<Project[]>('projects', INITIAL_PROJECTS);
-    }
     const path = 'projects';
     try {
       const snap = await getDocs(collection(db, path));
@@ -361,22 +287,12 @@ export const dbService = {
       }
       return snap.docs.map(d => ({ id: d.id, ...d.data() } as Project));
     } catch (e) {
-      console.warn("Firestore error, load local projects:", e);
-      return getLocal<Project[]>('projects', INITIAL_PROJECTS);
+      handleFirestoreError(e, OperationType.LIST, path);
+      return [];
     }
   },
 
   async saveProject(project: Project): Promise<void> {
-    const list = getLocal<Project[]>('projects', INITIAL_PROJECTS);
-    const index = list.findIndex(p => p.id === project.id);
-    if (index >= 0) {
-      list[index] = project;
-    } else {
-      list.push(project);
-    }
-    setLocal('projects', list);
-
-    if (!isRealFirebase) return;
     const path = 'projects';
     try {
       await setDoc(doc(db, path, project.id), {
@@ -393,10 +309,6 @@ export const dbService = {
   },
 
   async deleteProject(id: string): Promise<void> {
-    const list = getLocal<Project[]>('projects', INITIAL_PROJECTS).filter(p => p.id !== id);
-    setLocal('projects', list);
-
-    if (!isRealFirebase) return;
     const path = 'projects';
     try {
       await deleteDoc(doc(db, path, id));
@@ -407,9 +319,6 @@ export const dbService = {
 
   // SOCIALS
   async getSocials(): Promise<Socials> {
-    if (!isRealFirebase) {
-      return getLocal<Socials>('socials', INITIAL_SOCIALS);
-    }
     const path = 'socials';
     try {
       const docRef = doc(db, path, 'default');
@@ -421,14 +330,12 @@ export const dbService = {
         return INITIAL_SOCIALS;
       }
     } catch (e) {
-      console.warn("Firestore error, load local socials:", e);
-      return getLocal<Socials>('socials', INITIAL_SOCIALS);
+      handleFirestoreError(e, OperationType.GET, `${path}/default`);
+      return INITIAL_SOCIALS;
     }
   },
 
   async saveSocials(socials: Socials): Promise<void> {
-    setLocal('socials', socials);
-    if (!isRealFirebase) return;
     const path = 'socials';
     try {
       await setDoc(doc(db, path, 'default'), {
@@ -447,28 +354,19 @@ export const dbService = {
 
   // CONTACTS
   async getContacts(): Promise<ContactMessage[]> {
-    if (!isRealFirebase) {
-      return getLocal<ContactMessage[]>('contacts', []);
-    }
     const path = 'contacts';
     try {
       const snap = await getDocs(collection(db, path));
       return snap.docs.map(d => ({ id: d.id, ...d.data() } as ContactMessage))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     } catch (e) {
-      console.warn("Firestore error query contacts, load local alternative:", e);
-      return getLocal<ContactMessage[]>('contacts', []);
+      handleFirestoreError(e, OperationType.LIST, path);
+      return [];
     }
   },
 
   async addContactMessage(message: Omit<ContactMessage, 'id'>): Promise<void> {
     const id = Date.now().toString();
-    const fullMsg: ContactMessage = { id, ...message };
-    const list = getLocal<ContactMessage[]>('contacts', []);
-    list.unshift(fullMsg);
-    setLocal('contacts', list);
-
-    if (!isRealFirebase) return;
     const path = 'contacts';
     try {
       await setDoc(doc(db, path, id), {
@@ -483,15 +381,42 @@ export const dbService = {
   },
 
   async deleteContactMessage(id: string): Promise<void> {
-    const list = getLocal<ContactMessage[]>('contacts', []).filter(c => c.id !== id);
-    setLocal('contacts', list);
-
-    if (!isRealFirebase) return;
     const path = 'contacts';
     try {
       await deleteDoc(doc(db, path, id));
     } catch (e) {
       handleFirestoreError(e, OperationType.DELETE, `${path}/${id}`);
+    }
+  },
+
+  // VISITOR ANALYTICS
+  async getVisitorCount(): Promise<number> {
+    const path = 'metrics';
+    try {
+      const docRef = doc(db, path, 'visitors');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data().count || 0;
+      } else {
+        await setDoc(docRef, { count: 1 });
+        return 1;
+      }
+    } catch (e) {
+      console.warn("Firestore error getVisitorCount, default to 0:", e);
+      return 0;
+    }
+  },
+
+  async incrementVisitorCount(): Promise<number> {
+    const path = 'metrics';
+    try {
+      const docRef = doc(db, path, 'visitors');
+      await setDoc(docRef, { count: increment(1) }, { merge: true });
+      const docSnap = await getDoc(docRef);
+      return docSnap.exists() ? (docSnap.data().count || 1) : 1;
+    } catch (e) {
+      console.warn("Firestore error incrementVisitorCount, default to 1:", e);
+      return 1;
     }
   }
 };
