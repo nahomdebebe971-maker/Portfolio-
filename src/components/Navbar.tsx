@@ -96,9 +96,9 @@ export default function Navbar({ onAdminClick, onAdminToggle }: NavbarProps) {
           <div className="flex items-center gap-4">
             {/* Quick database connection badge */}
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] font-mono tracking-wider">
-              <span className={`h-1.5 w-1.5 rounded-full ${isFirebaseActive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-              <span className="text-slate-500 uppercase">
-                {isFirebaseActive ? 'Live DB' : 'Preview DB'}
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-slate-400 uppercase">
+                Supabase Cloud DB
               </span>
             </div>
 
@@ -169,9 +169,9 @@ export default function Navbar({ onAdminClick, onAdminToggle }: NavbarProps) {
           </div>
 
           <div className="pt-6 border-t border-slate-800 flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className={`h-2 w-2 rounded-full ${isFirebaseActive ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-              <span>Database Connection: {isFirebaseActive ? 'Firestore Native Cloud' : 'Isolated Local Storage'}</span>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span>Database Connection: Supabase Connected</span>
             </div>
             {isAdmin && (
               <button

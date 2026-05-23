@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { dbService } from '../firebase/dbService';
+import { dbService } from '../supabase/dbService';
 import { Profile, Skill, Achievement, Award, Project, Socials, ContactMessage } from '../types';
 
 export interface ToastItem {
@@ -156,8 +156,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setContacts(ct);
       setVisitorCount(vc);
       
-      const { isRealFirebase } = await import('../firebase/config');
-      setIsFirebaseActive(isRealFirebase);
+      setIsFirebaseActive(true);
     } catch (err: any) {
       console.error('Failed to perform sync refresh', err);
       showToast('Failed to load portfolio database records.', 'error');

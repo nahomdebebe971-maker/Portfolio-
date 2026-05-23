@@ -368,7 +368,7 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
                   <div className="space-y-1">
                     <span className="block text-slate-500 text-[10px] font-mono uppercase tracking-widest">Database Provider</span>
                     <span className="block text-sm font-extrabold font-mono text-emerald-400 uppercase">
-                      {isFirebaseActive ? 'Google Firestore' : 'Caching Fallback'}
+                      Supabase Cloud DB
                     </span>
                   </div>
                   <div className="h-10 w-10 flex items-center justify-center bg-emerald-500/10 text-emerald-400 rounded-xl">
@@ -384,14 +384,14 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
                   <h3 className="font-bold text-white">Dynamic Portfolios CMS Dashboard</h3>
                 </div>
                 <p className="text-slate-400 text-sm leading-relaxed font-sans">
-                  Welcome to your highly integrated administrative dashboard, Nahom. All inputs and uploads managed under this panel synchronize in real-time to your Firestore collection databases when activated. If Firestore services aren't initialized yet, our fail-safe system automatically caches edits in local client browsers so you can iterate mockup visuals seamlessly!
+                  Welcome to your highly integrated administrative dashboard, Nahom. All inputs and uploads managed under this panel synchronize in real-time to your Supabase cloud backend database. Edits here update your portfolio website instantly.
                 </p>
                 <div className="bg-black/30 p-4 rounded-xl border border-white/5 text-xs text-slate-400 font-mono flex items-center gap-2">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                   </span>
-                  <span>Database Connection Status: {isFirebaseActive ? 'Real-time sync to Cloud Firestore is ACTIVE.' : 'Offline preview mode is active. (Connect Firestore in Firebase UI anytime).'}</span>
+                  <span>Database Connection Status: Real-time sync to Supabase Cloud Database is ACTIVE.</span>
                 </div>
               </div>
 
