@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "Profile": {
+      "title": "Profile",
+      "description": "About and personal information for Nahom Debebe",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "bio": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "titleText": { "type": "string" },
+        "education": { "type": "string" }
+      },
+      "required": ["name", "bio", "id"]
+    },
+    "Skill": {
+      "title": "Skill",
+      "description": "Skills with level proficiency",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "level": { "type": "number" },
+        "category": { "type": "string" }
+      },
+      "required": ["name", "level"]
+    },
+    "Achievement": {
+      "title": "Achievement",
+      "description": "Highlights of key accomplishments",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["title", "description", "date"]
+    },
+    "Award": {
+      "title": "Award",
+      "description": "Student and professional awards",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "eventName": { "type": "string" },
+        "date": { "type": "string" },
+        "imageUrl": { "type": "string" }
+      },
+      "required": ["title", "description", "eventName", "date"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Software products and projects built",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "tech": { "type": "array" },
+        "imageUrl": { "type": "string" },
+        "github": { "type": "string" },
+        "demo": { "type": "string" }
+      },
+      "required": ["title", "description", "tech"]
+    },
+    "Socials": {
+      "title": "Socials",
+      "description": "Links to social platforms",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "github": { "type": "string" },
+        "telegram": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "instagram": { "type": "string" },
+        "facebook": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "email": { "type": "string" }
+      },
+      "required": ["github", "telegram", "email"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Interactions submitted from contact form",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "/profile/{profileId}": {
+      "schema": "Profile",
+      "description": "Contains a single document for portfolio general text"
+    },
+    "/skills/{skillId}": {
+      "schema": "Skill",
+      "description": "List of editable portfolio skills"
+    },
+    "/achievements/{achievementId}": {
+      "schema": "Achievement",
+      "description": "Portfolio achievements timeline entries"
+    },
+    "/awards/{awardId}": {
+      "schema": "Award",
+      "description": "Certificates and awards received"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "List of dynamic showcase projects"
+    },
+    "/socials/{socialsId}": {
+      "schema": "Socials",
+      "description": "Editable social accounts links config"
+    },
+    "/contacts/{contactId}": {
+      "schema": "ContactMessage",
+      "description": "User feedback and inquiries"
+    }
+  }
+}

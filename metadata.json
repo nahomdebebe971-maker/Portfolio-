@@ -1,0 +1,6 @@
+{
+  "name": "Nahom Debebe Portfolio",
+  "description": "A futuristic student portfolio website with an interactive dark-themed glassmorphism UI and a secure hidden admin dashboard system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
